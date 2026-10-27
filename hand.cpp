@@ -252,11 +252,20 @@ OBJECT Hand::getObjects(FELD_MAPP *mapp) {
                 first_feld_ID = mapp->felds[lowest_y * 10 + lowest_x].feld_ID;
         }
 
+
         for (int i=0; i < object.number_object_felds; ++i) {
 
         }
 
+        for (int y=0; y < object.object_height; ++y) {
+                for (int x=0; x < object.object_width; ++x) {
+                        object.object_felds_ids.push_back(first_feld_ID + (y * 10) + x);
+                }
+        }
 
+        object.object_x = mapp->felds[first_feld_ID].feld_x;
+        object.object_y = mapp->felds[first_feld_ID].feld_y;
+        object.object_ID = 0;
 
         return object;
 
