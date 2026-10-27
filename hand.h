@@ -24,9 +24,21 @@ struct HAND {
     int number_hand_object_felds; // the compleat number of hand object felds
     int number_hand_object_felds_valid; // the number of all hand object felds witch have a part of the hand
     int number_hand_object_felds_not_valid; // the number of all hand object felds witch have not a part of the hand
-    std::vector<int> hand_object_felds_id; // The ID from etch feld witch is part of the hand object
+    std::vector<int> hand_object_felds_ids; // The ID from etch feld witch is part of the hand object
 
     std::vector<int> hand_felds_id; // The ID from etch feld witch is part of the hand
+};
+
+struct OBJECT {
+    int object_ID;
+    int object_x;
+    int object_y;
+    int object_width;
+    int object_height;
+    int number_object_felds;
+    int number_object_felds_valid;
+    int number_object_felds_not_valid;
+    std::vector<int> object_felds_ids;
 };
 
 struct FELD {
@@ -70,7 +82,7 @@ class Hand{
 
         void feldCollor(FELD* felds);
 
-        void getObjects(FELD_MAPP* mapp);
+        OBJECT getObjects(FELD_MAPP* mapp);
 
 };
 

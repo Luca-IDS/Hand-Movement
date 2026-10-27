@@ -29,9 +29,6 @@ FELD_MAPP Hand::serch_hand(const std::shared_ptr<peak::core::Buffer>& buffer) {
 
         getObjects(&mapp);
 
-        //std::cout << mapp.felds[0].pixel_RGB[0][0] << "\n";
-        //std::cout << mapp.felds[660].collor;
-
         return mapp;
 }
 
@@ -185,24 +182,82 @@ void Hand::feldCollor(FELD* felds) {
 
 }
 
-void Hand::getObjects(FELD_MAPP *mapp) {
+OBJECT Hand::getObjects(FELD_MAPP *mapp) {
 
-        std::cout << '\n';
-        std::cout << '\n';
-        std::cout << '\n';
-        int count = 1;
-        static int frameCount = -1;
+        OBJECT object;
 
-        frameCount++;
+        //std::cout << '\n';
+        //std::cout << '\n';
+        //std::cout << '\n';
+        //int count = 1;
+        //static int frameCount = -1;
 
-        std::cout << "\nFrame: " << frameCount << '\n';
+        //frameCount++;
+
+        //std::cout << "\nFrame: " << frameCount << '\n';
+
+        int higest_y = 1000000; // Geringer wert da oben  0
+        int lowest_y = 0; // Höher wert da nach unten höher
+        int higest_x = 0; // Höher wert da nach recht höher
+        int lowest_x = 1000000; // Nidrigerer Wert da nach links niedriger
+
+        int higest_y_ID = 0;
+        int lowest_y_ID = 0;
+        int higest_x_ID = 0;
+        int lowest_x_ID = 0;
+
+        int first_feld_ID;
+
+        int valid_felds = 0;
 
         for (int i=0; i < mapp->felds.size(); ++i) {
-
-
                 if (mapp->felds[i].collor != 2) {
-                        std::cout << count << ": " << mapp->felds[i].feld_ID << "->" << mapp->felds[i].collor << "\n";
-                        ++count;
+                        // std::cout << count << ": " << mapp->felds[i].feld_ID << "->" << mapp->felds[i].collor << "\n";
+                        // ++count;
+                        ++valid_felds;
+                        if (mapp->felds[i].feld_y <= higest_y) {
+                                higest_y = mapp->felds[i].feld_y;
+                                higest_y_ID = mapp->felds[i].feld_ID;
+                        }
+
+                        if (mapp->felds[i].feld_y >= lowest_y) {
+                                lowest_y = mapp->felds[i].feld_y;
+                                lowest_y_ID = mapp->felds[i].feld_ID;
+                        }
+
+                        if (mapp->felds[i].feld_x >= higest_x) {
+                                higest_x = mapp->felds[i].feld_x;
+                                higest_x_ID = mapp->felds[i].feld_ID;
+                        }
+
+                        if (mapp->felds[i].feld_x <= lowest_x) {
+                                lowest_x = mapp->felds[i].feld_x;
+                                lowest_x_ID = mapp->felds[i].feld_ID;
+                        }
+
+
                 }
         }
+
+        object.object_height = lowest_y - higest_y + 1;
+        object.object_width = higest_x - lowest_x + 1;
+        object.number_object_felds = object.object_height * object.object_width;
+        object.number_object_felds_valid = valid_felds;
+        object.number_object_felds_not_valid = object.number_object_felds - valid_felds;
+
+        if (mapp->felds[higest_y_ID].feld_x == lowest_x) {
+                first_feld_ID = higest_y_ID;
+        }
+        else {
+                first_feld_ID = mapp->felds[lowest_y * 10 + lowest_x].feld_ID;
+        }
+
+        for (int i=0; i < object.number_object_felds; ++i) {
+
+        }
+
+
+
+        return object;
+
 }
