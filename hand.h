@@ -82,7 +82,9 @@ class Hand{
 
         void feldCollor(FELD* felds);
 
-        OBJECT getObjects(FELD_MAPP* mapp);
+        bool hasNeighbor(FELD_MAPP *mapp, int id, int number_of_columns, int number_of_rows);
+
+        OBJECT getObjects(FELD_MAPP* mapp, int number_of_columns, int number_of_rows);
 
 };
 

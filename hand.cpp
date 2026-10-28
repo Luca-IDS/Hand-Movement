@@ -25,9 +25,14 @@ FELD_MAPP Hand::serch_hand(const std::shared_ptr<peak::core::Buffer>& buffer) {
         const int width  = static_cast<int>(buffer->Width());
         const int height = static_cast<int>(buffer->Height());
 
+        int number_of_columns = width / 10;
+        int number_of_rows = height / 10;
+
         FELD_MAPP mapp = getFelds(rgbImage, width, height);
 
-        getObjects(&mapp);
+
+
+        getObjects(&mapp, number_of_columns, number_of_rows);
 
         return mapp;
 }
@@ -35,7 +40,6 @@ FELD_MAPP Hand::serch_hand(const std::shared_ptr<peak::core::Buffer>& buffer) {
 HAND Hand::return_hand() {
         return _my_hand;
 }
-
 
 FELD_MAPP Hand::getFelds(const peak::ipl::Image& rgbImage, int width, int height) {
         FELD_MAPP mapp;
@@ -114,8 +118,6 @@ FELD_MAPP Hand::getFelds(const peak::ipl::Image& rgbImage, int width, int height
         return mapp;
 }
 
-
-
 std::array<int, 3> Hand::getPixel_RGB(const peak::ipl::Image& rgbImage, int x, int y) {
 
         //const auto start = std::chrono::steady_clock::now();
@@ -182,29 +184,19 @@ void Hand::feldCollor(FELD* felds) {
 
 }
 
-OBJECT Hand::getObjects(FELD_MAPP *mapp) {
+OBJECT Hand::getObjects(FELD_MAPP *mapp, int number_of_columns, int number_of_rows) {
 
         OBJECT object;
-
-        //std::cout << '\n';
-        //std::cout << '\n';
-        //std::cout << '\n';
-        //int count = 1;
-        //static int frameCount = -1;
-
-        //frameCount++;
-
-        //std::cout << "\nFrame: " << frameCount << '\n';
 
         int higest_y = 1000000; // Geringer wert da oben  0
         int lowest_y = 0; // Höher wert da nach unten höher
         int higest_x = 0; // Höher wert da nach recht höher
         int lowest_x = 1000000; // Nidrigerer Wert da nach links niedriger
 
-        int higest_y_ID = 0;
-        int lowest_y_ID = 0;
-        int higest_x_ID = 0;
-        int lowest_x_ID = 0;
+        int higest_y_ID = -1;
+        int lowest_y_ID = -1;
+        int higest_x_ID = -1;
+        int lowest_x_ID = -1;
 
         int first_feld_ID;
 
@@ -212,25 +204,24 @@ OBJECT Hand::getObjects(FELD_MAPP *mapp) {
 
         for (int i=0; i < mapp->felds.size(); ++i) {
                 if (mapp->felds[i].collor != 2) {
-                        // std::cout << count << ": " << mapp->felds[i].feld_ID << "->" << mapp->felds[i].collor << "\n";
-                        // ++count;
+
                         ++valid_felds;
-                        if (mapp->felds[i].feld_y <= higest_y) {
+                        if (mapp->felds[i].feld_y <= higest_y && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
                                 higest_y = mapp->felds[i].feld_y;
                                 higest_y_ID = mapp->felds[i].feld_ID;
                         }
 
-                        if (mapp->felds[i].feld_y >= lowest_y) {
+                        if (mapp->felds[i].feld_y >= lowest_y && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
                                 lowest_y = mapp->felds[i].feld_y;
                                 lowest_y_ID = mapp->felds[i].feld_ID;
                         }
 
-                        if (mapp->felds[i].feld_x >= higest_x) {
+                        if (mapp->felds[i].feld_x >= higest_x && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
                                 higest_x = mapp->felds[i].feld_x;
                                 higest_x_ID = mapp->felds[i].feld_ID;
                         }
 
-                        if (mapp->felds[i].feld_x <= lowest_x) {
+                        if (mapp->felds[i].feld_x <= lowest_x && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
                                 lowest_x = mapp->felds[i].feld_x;
                                 lowest_x_ID = mapp->felds[i].feld_ID;
                         }
@@ -239,34 +230,119 @@ OBJECT Hand::getObjects(FELD_MAPP *mapp) {
                 }
         }
 
-        object.object_height = lowest_y - higest_y + 1;
-        object.object_width = higest_x - lowest_x + 1;
-        object.number_object_felds = object.object_height * object.object_width;
-        object.number_object_felds_valid = valid_felds;
-        object.number_object_felds_not_valid = object.number_object_felds - valid_felds;
+        if (higest_y_ID != -1 && lowest_y_ID != -1 && higest_x_ID != -1 && lowest_x_ID != -1) {
+                object.object_height = lowest_y - higest_y + 1;
+                object.object_width = higest_x - lowest_x + 1;
+                object.number_object_felds = object.object_height * object.object_width;
+                object.number_object_felds_valid = valid_felds;
+                object.number_object_felds_not_valid = object.number_object_felds - valid_felds;
 
-        if (mapp->felds[higest_y_ID].feld_x == lowest_x) {
-                first_feld_ID = higest_y_ID;
-        }
-        else {
-                first_feld_ID = mapp->felds[lowest_y * 10 + lowest_x].feld_ID;
-        }
-
-
-        for (int i=0; i < object.number_object_felds; ++i) {
-
-        }
-
-        for (int y=0; y < object.object_height; ++y) {
-                for (int x=0; x < object.object_width; ++x) {
-                        object.object_felds_ids.push_back(first_feld_ID + (y * 10) + x);
+                if (mapp->felds[higest_y_ID].feld_x == lowest_x) {
+                        first_feld_ID = higest_y_ID;
                 }
+                else {
+                        first_feld_ID = mapp->felds[higest_y * number_of_columns + lowest_x].feld_ID;
+                }
+
+
+                for (int i=0; i < object.number_object_felds; ++i) {
+
+                }
+
+                for (int y=0; y < object.object_height; ++y) {
+                        for (int x=0; x < object.object_width; ++x) {
+                                object.object_felds_ids.push_back(first_feld_ID + (y * number_of_columns) + x);
+                        }
+                }
+
+                object.object_x = mapp->felds[first_feld_ID].feld_x;
+                object.object_y = mapp->felds[first_feld_ID].feld_y;
+                object.object_ID = 0;
+
         }
 
-        object.object_x = mapp->felds[first_feld_ID].feld_x;
-        object.object_y = mapp->felds[first_feld_ID].feld_y;
-        object.object_ID = 0;
+
 
         return object;
 
+}
+
+bool Hand::hasNeighbor(FELD_MAPP *mapp, int id, int number_of_columns, int number_of_rows) {
+
+        bool return_value = false;
+
+        int mid_id = mapp->felds[id].feld_ID;
+
+
+        int left_id = -1;
+        int right_id = -1;
+        int top_id = -1;
+        int buttom_id = -1;
+        int left_top_id = -1;
+        int right_top_id = -1;
+        int left_buttom_id = -1;
+        int right_buttom_id = -1;
+
+        if (mapp->felds[mid_id].feld_x != 0) {
+
+                left_id = mapp->felds[mid_id - 1].feld_ID;
+
+        }
+
+        if (mapp->felds[mid_id].feld_x != number_of_columns - 1) {
+
+                 right_id = mapp->felds[mid_id + 1].feld_ID;
+        }
+
+        if (mapp->felds[mid_id].feld_y != 0) {
+
+                int top_temp = (mapp->felds[mid_id].feld_y - 1) * number_of_columns + (mapp->felds[mid_id].feld_x);
+                top_id = mapp->felds[top_temp].feld_ID;
+        }
+
+
+        if (mapp->felds[mid_id].feld_y != number_of_rows - 1) {
+
+                int buttom_temp = (mapp->felds[mid_id].feld_y + 1) * number_of_columns + (mapp->felds[mid_id].feld_x);
+                buttom_id = mapp->felds[buttom_temp].feld_ID;
+        }
+
+        if (mapp->felds[mid_id].feld_x != 0 && mapp->felds[mid_id].feld_y != 0) {
+
+                int left_top_temp = (mapp->felds[mid_id].feld_y - 1) * number_of_columns + (mapp->felds[mid_id].feld_x - 1);
+                left_top_id = mapp->felds[left_top_temp].feld_ID;
+        }
+
+        if (mapp->felds[mid_id].feld_x != number_of_columns - 1 && mapp->felds[mid_id].feld_y != 0) {
+
+                int right_top_temp = (mapp->felds[mid_id].feld_y - 1) * number_of_columns + (mapp->felds[mid_id].feld_x + 1);
+                right_top_id = mapp->felds[right_top_temp].feld_ID;
+        }
+
+        if (mapp->felds[mid_id].feld_x != 0 && mapp->felds[mid_id].feld_y != number_of_rows - 1) {
+
+                int left_buttom_temp = (mapp->felds[mid_id].feld_y + 1) * number_of_columns + (mapp->felds[mid_id].feld_x - 1);
+                left_buttom_id = mapp->felds[left_buttom_temp].feld_ID;
+        }
+
+        if (mapp->felds[mid_id].feld_x != number_of_columns - 1 && mapp->felds[mid_id].feld_y != number_of_rows - 1) {
+
+                int right_buttom_temp = (mapp->felds[mid_id].feld_y + 1) * number_of_columns + (mapp->felds[mid_id].feld_x + 1);
+                right_buttom_id = mapp->felds[right_buttom_temp].feld_ID;
+        }
+
+
+        if ((left_id != -1 && mapp->felds[left_id].collor != 2) ||
+            (right_id != -1 && mapp->felds[right_id].collor != 2) ||
+            (top_id != -1 && mapp->felds[top_id].collor != 2) ||
+            (buttom_id != -1 && mapp->felds[buttom_id].collor != 2) ||
+            (left_top_id != -1 && mapp->felds[left_top_id].collor != 2) ||
+            (right_top_id != -1 && mapp->felds[right_top_id].collor != 2) ||
+            (left_buttom_id != -1 && mapp->felds[left_buttom_id].collor != 2) ||
+            (right_buttom_id != -1 && mapp->felds[right_buttom_id].collor != 2)) {
+
+                return_value = true;
+            }
+
+        return return_value;
 }
