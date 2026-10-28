@@ -30,14 +30,14 @@ struct HAND {
 };
 
 struct OBJECT {
-    int object_ID;
-    int object_x;
-    int object_y;
-    int object_width;
-    int object_height;
-    int number_object_felds;
-    int number_object_felds_valid;
-    int number_object_felds_not_valid;
+    int object_ID = -1;
+    int object_x = -1;
+    int object_y = -1;
+    int object_width = 0;
+    int object_height = 0;
+    int number_object_felds = 0;
+    int number_object_felds_valid = 0;
+    int number_object_felds_not_valid = 0;
     std::vector<int> object_felds_ids;
 };
 

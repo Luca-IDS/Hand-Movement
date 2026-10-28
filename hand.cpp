@@ -32,7 +32,13 @@ FELD_MAPP Hand::serch_hand(const std::shared_ptr<peak::core::Buffer>& buffer) {
 
 
 
-        getObjects(&mapp, number_of_columns, number_of_rows);
+        OBJECT object = getObjects(&mapp, number_of_columns, number_of_rows);
+
+        std::cout << "\n\n=== Object ===\n\n";
+        std::cout << "Number Felds: " << object.number_object_felds;
+        std::cout << "\nNumber valid Felds: " << object.number_object_felds_valid;
+        std::cout << "\nNumber unvalid Felds: " << object.number_object_felds_not_valid;
+        std::cout << "\nSumm: " << object.number_object_felds_valid + object.number_object_felds_not_valid;
 
         return mapp;
 }
