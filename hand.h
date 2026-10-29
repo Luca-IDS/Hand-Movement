@@ -51,13 +51,13 @@ struct FELD {
     int feld_y;
     int collor; // collor 0, 1, 2
     int number_of_pixels = pixel_ID.size();
+    int grub_ID = -1;
 };
 
 struct FELD_MAPP {
     std::vector<FELD> felds;
     int number_of_felds = felds.size();
 };
-
 
 
 class Hand{
@@ -84,7 +84,9 @@ class Hand{
 
         bool hasNeighbor(FELD_MAPP *mapp, int id, int number_of_columns, int number_of_rows);
 
-        OBJECT getObjects(FELD_MAPP* mapp, int number_of_columns, int number_of_rows);
+        std::vector<OBJECT> getObjects(FELD_MAPP* mapp, int number_of_columns, int number_of_rows);
+
+        std::vector<FELD_MAPP> getGrubs(FELD_MAPP *mapp, int number_of_columns, int number_of_rows);
 
 };
 

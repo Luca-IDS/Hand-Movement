@@ -32,13 +32,13 @@ FELD_MAPP Hand::serch_hand(const std::shared_ptr<peak::core::Buffer>& buffer) {
 
 
 
-        OBJECT object = getObjects(&mapp, number_of_columns, number_of_rows);
+        std::vector<OBJECT> objects = getObjects(&mapp, number_of_columns, number_of_rows);
 
         std::cout << "\n\n=== Object ===\n\n";
-        std::cout << "Number Felds: " << object.number_object_felds;
-        std::cout << "\nNumber valid Felds: " << object.number_object_felds_valid;
-        std::cout << "\nNumber unvalid Felds: " << object.number_object_felds_not_valid;
-        std::cout << "\nSumm: " << object.number_object_felds_valid + object.number_object_felds_not_valid;
+        std::cout << "Number Felds: " << objects[0].number_object_felds;
+        std::cout << "\nNumber valid Felds: " << objects[0].number_object_felds_valid;
+        std::cout << "\nNumber unvalid Felds: " << objects[0].number_object_felds_not_valid;
+        std::cout << "\nSumm: " << objects[0].number_object_felds_valid + objects[0].number_object_felds_not_valid;
 
         return mapp;
 }
@@ -190,86 +190,92 @@ void Hand::feldCollor(FELD* felds) {
 
 }
 
-OBJECT Hand::getObjects(FELD_MAPP *mapp, int number_of_columns, int number_of_rows) {
+std::vector<OBJECT> Hand::getObjects(FELD_MAPP *mapp, int number_of_columns, int number_of_rows) {
 
         OBJECT object;
+        std::vector<OBJECT> objects;
 
-        int higest_y = 1000000; // Geringer wert da oben  0
-        int lowest_y = 0; // Höher wert da nach unten höher
-        int higest_x = 0; // Höher wert da nach recht höher
-        int lowest_x = 1000000; // Nidrigerer Wert da nach links niedriger
 
-        int higest_y_ID = -1;
-        int lowest_y_ID = -1;
-        int higest_x_ID = -1;
-        int lowest_x_ID = -1;
 
-        int first_feld_ID;
 
-        int valid_felds = 0;
+        std::vector<FELD_MAPP> grubs = getGrubs(mapp, number_of_columns, number_of_rows);
 
-        for (int i=0; i < mapp->felds.size(); ++i) {
-                if (mapp->felds[i].collor != 2) {
+        for (int i=0; i < grubs.size(); ++i) {
 
-                        ++valid_felds;
-                        if (mapp->felds[i].feld_y <= higest_y && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
-                                higest_y = mapp->felds[i].feld_y;
-                                higest_y_ID = mapp->felds[i].feld_ID;
+                int higest_y = 1000000; // Geringer wert da oben  0
+                int lowest_y = 0; // Höher wert da nach unten höher
+                int higest_x = 0; // Höher wert da nach recht höher
+                int lowest_x = 1000000; // Nidrigerer Wert da nach links niedriger
+
+                int higest_y_ID = -1;
+                int lowest_y_ID = -1;
+                int higest_x_ID = -1;
+                int lowest_x_ID = -1;
+
+                int first_feld_ID;
+
+                int valid_felds = 0;
+
+                for (int i = 0; i < grubs[i].felds.size(); ++i) {
+                        if (grubs[i].felds[i].collor != 2 &&
+                            hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
+                                ++valid_felds;
+                                if (grubs[i].felds[i].feld_y <= higest_y) {
+                                        higest_y = grubs[i].felds[i].feld_y;
+                                        higest_y_ID = grubs[i].felds[i].feld_ID;
+                                }
+
+                                if (grubs[i].felds[i].feld_y >= lowest_y) {
+                                        lowest_y = grubs[i].felds[i].feld_y;
+                                        lowest_y_ID = grubs[i].felds[i].feld_ID;
+                                }
+
+                                if (grubs[i].felds[i].feld_x >= higest_x) {
+                                        higest_x = grubs[i].felds[i].feld_x;
+                                        higest_x_ID = grubs[i].felds[i].feld_ID;
+                                }
+
+                                if (grubs[i].felds[i].feld_x <= lowest_x) {
+                                        lowest_x = grubs[i].felds[i].feld_x;
+                                        lowest_x_ID = grubs[i].felds[i].feld_ID;
+                                }
+                        }
+                }
+
+                if (higest_y_ID != -1 && lowest_y_ID != -1 && higest_x_ID != -1 && lowest_x_ID != -1) {
+                        object.object_height = lowest_y - higest_y + 1;
+                        object.object_width = higest_x - lowest_x + 1;
+                        object.number_object_felds = object.object_height * object.object_width;
+                        object.number_object_felds_valid = valid_felds;
+                        object.number_object_felds_not_valid = object.number_object_felds - valid_felds;
+
+                        if (grubs[i].felds[higest_y_ID].feld_x == lowest_x) {
+                                first_feld_ID = higest_y_ID;
+                        } else {
+                                first_feld_ID = grubs[i].felds[higest_y * number_of_columns + lowest_x].feld_ID;
                         }
 
-                        if (mapp->felds[i].feld_y >= lowest_y && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
-                                lowest_y = mapp->felds[i].feld_y;
-                                lowest_y_ID = mapp->felds[i].feld_ID;
+
+                        for (int i = 0; i < object.number_object_felds; ++i) {
                         }
 
-                        if (mapp->felds[i].feld_x >= higest_x && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
-                                higest_x = mapp->felds[i].feld_x;
-                                higest_x_ID = mapp->felds[i].feld_ID;
+                        for (int y = 0; y < object.object_height; ++y) {
+                                for (int x = 0; x < object.object_width; ++x) {
+                                        object.object_felds_ids.push_back(first_feld_ID + (y * number_of_columns) + x);
+                                }
                         }
 
-                        if (mapp->felds[i].feld_x <= lowest_x && hasNeighbor(mapp, i, number_of_columns, number_of_rows)) {
-                                lowest_x = mapp->felds[i].feld_x;
-                                lowest_x_ID = mapp->felds[i].feld_ID;
-                        }
-
-
+                        object.object_x = grubs[i].felds[first_feld_ID].feld_x;
+                        object.object_y = grubs[i].felds[first_feld_ID].feld_y;
+                        object.object_ID = 0;
                 }
         }
 
-        if (higest_y_ID != -1 && lowest_y_ID != -1 && higest_x_ID != -1 && lowest_x_ID != -1) {
-                object.object_height = lowest_y - higest_y + 1;
-                object.object_width = higest_x - lowest_x + 1;
-                object.number_object_felds = object.object_height * object.object_width;
-                object.number_object_felds_valid = valid_felds;
-                object.number_object_felds_not_valid = object.number_object_felds - valid_felds;
-
-                if (mapp->felds[higest_y_ID].feld_x == lowest_x) {
-                        first_feld_ID = higest_y_ID;
-                }
-                else {
-                        first_feld_ID = mapp->felds[higest_y * number_of_columns + lowest_x].feld_ID;
-                }
 
 
-                for (int i=0; i < object.number_object_felds; ++i) {
+        objects.push_back(object);
 
-                }
-
-                for (int y=0; y < object.object_height; ++y) {
-                        for (int x=0; x < object.object_width; ++x) {
-                                object.object_felds_ids.push_back(first_feld_ID + (y * number_of_columns) + x);
-                        }
-                }
-
-                object.object_x = mapp->felds[first_feld_ID].feld_x;
-                object.object_y = mapp->felds[first_feld_ID].feld_y;
-                object.object_ID = 0;
-
-        }
-
-
-
-        return object;
+        return objects;
 
 }
 
@@ -349,6 +355,30 @@ bool Hand::hasNeighbor(FELD_MAPP *mapp, int id, int number_of_columns, int numbe
 
                 return_value = true;
             }
+
+        return return_value;
+}
+
+std::vector<FELD_MAPP> Hand::getGrubs(FELD_MAPP *mapp, int number_of_columns, int number_of_rows) {
+
+        std::vector<FELD_MAPP> return_value;
+
+        int first_feld_ID = -1;
+
+        for (int i=0; first_feld_ID == -1; i++) {
+
+                FELD_MAPP grub;
+
+                if (mapp->felds[i].collor != 2) {
+                        if (first_feld_ID == -1 && mapp->felds[i].grub_ID == -1) {
+                                first_feld_ID = mapp->felds[i].feld_ID;
+                                mapp->felds[i].grub_ID = 0;
+                                grub.felds.push_back(mapp->felds[i]);
+                        }
+                }
+
+                return_value.push_back(grub);
+        }
 
         return return_value;
 }
