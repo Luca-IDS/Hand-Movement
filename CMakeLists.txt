@@ -9,7 +9,8 @@ set (CMAKE_AUTORCC TRUE)
 
 if (MSVC)
     set (SAMPLE_TARGET_DEFINITION_ADDENDUM
-            grid_overlay.h)
+            grid_overlay.h
+            Tests.cpp)
 endif ()
 
 # Setup target executable with the same name as our project
@@ -26,6 +27,7 @@ add_executable (${PROJECT_NAME} ${SAMPLE_TARGET_DEFINITION_ADDENDUM}
         grid_overlay.h
         frame_overlay.cpp
         frame_overlay.h
+        Tests.cpp
 )
 
 # Find packages

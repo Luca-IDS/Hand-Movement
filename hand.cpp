@@ -34,6 +34,10 @@ FELD_MAPP Hand::serch_hand(const std::shared_ptr<peak::core::Buffer>& buffer) {
 
         // get from objects the Hand Object or get empty Hand Object
 
+        convertToHand(&objects);
+
+        std::cout << objects.size();
+
         return mapp;
 }
 
@@ -44,16 +48,10 @@ HAND Hand::return_hand() {
 FELD_MAPP Hand::getFelds(const peak::ipl::Image& rgbImage, int width, int height) {
         FELD_MAPP mapp;
 
-
-
         const int nuber_of_felds = (width / 10) * (height / 10);
 
-
-
         for (int feeld = 0; feeld < nuber_of_felds; ++feeld) {
-                //std::cout << "feld " << feeld << " from " << nuber_of_felds << "\n";
                 FELD curentFeld;
-
 
                 for (int y = 0; y < 10; ++y) {
                         for (int i = 0; i < 10; ++i) {
@@ -61,32 +59,21 @@ FELD_MAPP Hand::getFelds(const peak::ipl::Image& rgbImage, int width, int height
                         }
                 }
 
-
                 for (int y = 0; y < 10; ++y) {
                         for (int x = 0; x < 10; ++x) {
                                 curentFeld.pixel_Y.push_back(y);
                         }
                 }
 
-
                 for (int j = 0; j < 100; ++j) {
                         curentFeld.pixel_ID.push_back(j);
                 }
-
 
                 for (int x = 0; x < 10; ++x) {
                         for (int y = 0; y < 10; ++y) {
 
                         }
                 }
-
-
-
-                //const auto ende2 = std::chrono::steady_clock::now();
-                //const std::chrono::duration<double, std::milli> dauer2 = ende2 - start2;
-                //std::cout << "Alle Pixel cords + ID hat " << dauer2.count() << " ms gebraucht\n";
-
-                //const auto start1 = std::chrono::steady_clock::now();
 
                 for (int i = 0; i < curentFeld.pixel_ID.size(); ++i) {
                         int x;
@@ -95,13 +82,7 @@ FELD_MAPP Hand::getFelds(const peak::ipl::Image& rgbImage, int width, int height
                         x = curentFeld.pixel_X[i] + 10 * (feeld % (width / 10));
                         y = curentFeld.pixel_Y[i] + 10 * (feeld / (width / 10));
 
-                        //const auto start = std::chrono::steady_clock::now();
                         curentFeld.pixel_RGB.push_back(getPixel_RGB(rgbImage, x, y));
-                        //const auto ende = std::chrono::steady_clock::now();
-                        //const std::chrono::duration<double, std::milli> dauer = ende - start;
-
-                        //std::cout << "getPixel_RGB aufruf + speichern hat " << dauer.count() << " ms gebraucht\n";
-                        //std::cout << "Pixel: " << i << " abgeschlossen " << std::endl;
                 }
 
                 feldCollor(&curentFeld);
@@ -114,13 +95,10 @@ FELD_MAPP Hand::getFelds(const peak::ipl::Image& rgbImage, int width, int height
 
         }
 
-
         return mapp;
 }
 
 std::array<int, 3> Hand::getPixel_RGB(const peak::ipl::Image& rgbImage, int x, int y) {
-
-        //const auto start = std::chrono::steady_clock::now();
 
         const uint32_t width  = static_cast<uint32_t>(rgbImage.Width());
         const uint32_t height = static_cast<uint32_t>(rgbImage.Height());
@@ -130,11 +108,6 @@ std::array<int, 3> Hand::getPixel_RGB(const peak::ipl::Image& rgbImage, int x, i
 
         const uint8_t* data = rgbImage.Data();
         const size_t offset = (static_cast<size_t>(y) * width + x) * 3;
-
-        //const auto ende = std::chrono::steady_clock::now();
-        //const std::chrono::duration<double, std::milli> dauer = ende - start;
-
-        //std::cout << "getPixel_RGB hat " << dauer.count() << " ms gebraucht\n";
 
         return { data[offset], data[offset + 1], data[offset + 2] };
 }
@@ -398,4 +371,23 @@ std::vector<FELD_MAPP> Hand::getGrubs(FELD_MAPP *mapp, int number_of_columns, in
         }
 
         return return_value;
+}
+
+void Hand::convertToHand(std::vector<OBJECT> *objects) {
+
+        if (objects->size() == 0) {
+                return;
+        }
+
+        HAND hand;
+
+
+        for (int i=0; i < objects->size(); i++) {
+
+                TEST t_size = test_size(objects, i);
+
+        }
+
+
+        _my_hand = hand;
 }

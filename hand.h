@@ -59,6 +59,11 @@ struct FELD_MAPP {
     int number_of_felds = felds.size();
 };
 
+struct TEST {
+    double priority = 0;
+    double probability = 0;
+    double value;
+};
 
 class Hand{
 
@@ -69,8 +74,6 @@ class Hand{
 
         bool hand_is_there() {return _hand_is_there;}
         FELD_MAPP serch_hand(const std::shared_ptr<peak::core::Buffer>& buffer);
-
-
 
     private:
         HAND _my_hand;
@@ -87,6 +90,12 @@ class Hand{
         std::vector<OBJECT> getObjects(FELD_MAPP* mapp, int number_of_columns, int number_of_rows);
 
         std::vector<FELD_MAPP> getGrubs(FELD_MAPP *mapp, int number_of_columns, int number_of_rows);
+
+        void convertToHand(std::vector<OBJECT> *objects);
+
+    // Tsts
+
+        TEST test_size(std::vector<OBJECT> *objects, int i);
 
 };
 
