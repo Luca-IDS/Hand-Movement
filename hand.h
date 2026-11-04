@@ -97,6 +97,10 @@ class Hand{
 
         TEST test_size(std::vector<OBJECT> *objects, int i);
 
+        TEST test_mooving(std::vector<OBJECT> *objects, int i);
+
+        TEST test_object_appear(std::vector<OBJECT> *objects, int i);
+
 };
 
 
